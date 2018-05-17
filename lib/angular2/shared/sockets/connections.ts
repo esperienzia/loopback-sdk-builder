@@ -4,6 +4,7 @@ import { SocketDriver } from './socket.driver';
 import { AccessToken } from '../models';
 import { Subject, Observable } from 'rxjs';
 import { LoopBackConfig } from '../lb.config';
+import {share} from 'rxjs/internal/operators';
 /**
 * @author Jonathan Casarrubias <twitter:@johncasarrubias> <github:@mean-expert-official>
 * @module SocketConnection
@@ -48,10 +49,10 @@ export class SocketConnection {
     @Inject(NgZone) private zone: NgZone
   ) {
     this.sharedObservables = {
-      sharedOnConnect: this.subjects.onConnect.asObservable().share(),
-      sharedOnDisconnect: this.subjects.onDisconnect.asObservable().share(),
-      sharedOnAuthenticated: this.subjects.onAuthenticated.asObservable().share(),
-      sharedOnUnAuthorized: this.subjects.onUnAuthorized.asObservable().share()
+      sharedOnConnect: this.subjects.onConnect.asObservable().pipe(share()),
+      sharedOnDisconnect: this.subjects.onDisconnect.asObservable().pipe(share()),
+      sharedOnAuthenticated: this.subjects.onAuthenticated.asObservable().pipe(share()),
+      sharedOnUnAuthorized: this.subjects.onUnAuthorized.asObservable().pipe(share())
     };
     // This is needed to create the first channel, subsequents will share the connection
     // We are using Hot Observables to avoid duplicating connection status events.

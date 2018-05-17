@@ -154,7 +154,7 @@ export class FireLoopRef<T> {
       request = { filter, parent: this.parent.instance };
     }
     if (event.match(/(value|change|stats)/)) {
-      return Observable.pipe(merge(
+      return Observable.create().pipe(merge(
         this.pull(event, request),
         this.broadcasts(event, request)
       ));
