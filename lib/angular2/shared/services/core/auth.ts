@@ -3,6 +3,8 @@ declare var Object: any;
 import { Injectable, Inject } from '@angular/core';
 import { InternalStorage } from '../../storage/storage.swaps';
 import { SDKToken } from '../../models/BaseModels';
+import { LoopBackConfig } from "../../lb.config";
+
 /**
 * @author Jonathan Casarrubias <twitter:@johncasarrubias> <github:@mean-expert-official>
 * @module SocketConnection
@@ -18,10 +20,7 @@ export class LoopBackAuth {
    * @type {SDKToken}
    **/
   private token: SDKToken = new SDKToken();
-  /**
-   * @type {string}
-   **/
-  protected prefix: string = '$LoopBackSDK$';
+
   /**
    * @method constructor
    * @param {InternalStorage} storage Internal Storage Driver
@@ -29,12 +28,12 @@ export class LoopBackAuth {
    * The constructor will initialize the token loading data from storage
    **/
   constructor(@Inject(InternalStorage) protected storage: InternalStorage) {
-    this.token.id = this.load('id');
-    this.token.user = this.load('user');
-    this.token.userId = this.load('userId');
-    this.token.created = this.load('created');
-    this.token.ttl = this.load('ttl');
-    this.token.rememberMe = this.load('rememberMe');
+    this.token.id = this.load(LoopBackConfig.getTokenIdStorageKey());
+    this.token.user = this.load(LoopBackConfig.getUserStorageKey());
+    this.token.userId = this.load(LoopBackConfig.getUserIdStorageKey());
+    this.token.created = this.load(LoopBackConfig.getCreatedStorageKey());
+    this.token.ttl = this.load(LoopBackConfig.getTtlStorageKey());
+    this.token.rememberMe = this.load(LoopBackConfig.getRememberMeStorageKey());
   }
   /**
    * @method setRememberMe
@@ -115,12 +114,12 @@ export class LoopBackAuth {
   public save(): boolean {
       let today = new Date();
       let expires = new Date(today.getTime() + (this.token.ttl * 1000));
-      this.persist('id', this.token.id, expires);
-      this.persist('user', this.token.user, expires);
-      this.persist('userId', this.token.userId, expires);
-      this.persist('created', this.token.created, expires);
-      this.persist('ttl', this.token.ttl, expires);
-      this.persist('rememberMe', this.token.rememberMe, expires);
+      this.persist(LoopBackConfig.getTokenIdStorageKey(), this.token.id, expires);
+      this.persist(LoopBackConfig.getUserStorageKey(), this.token.user, expires);
+      this.persist(LoopBackConfig.getUserIdStorageKey(), this.token.userId, expires);
+      this.persist(LoopBackConfig.getCreatedStorageKey(), this.token.created, expires);
+      this.persist(LoopBackConfig.getTtlStorageKey(), this.token.ttl, expires);
+      this.persist(LoopBackConfig.getRememberMeStorageKey(), this.token.rememberMe, expires);
       return true;
   };
   /**
@@ -131,7 +130,7 @@ export class LoopBackAuth {
    * This method will load either from local storage or cookies the provided property.
    **/
   protected load(prop: string): any {
-    return this.storage.get(`${this.prefix}${prop}`);
+    return this.storage.get(`${LoopBackConfig.getStorageKeyPrefix()}${prop}`);
   }
   /**
    * @method clear
@@ -140,7 +139,7 @@ export class LoopBackAuth {
    * This method will clear cookies or the local storage.
    **/
   public clear(): void {
-    Object.keys(this.token).forEach((prop: string) => this.storage.remove(`${this.prefix}${prop}`));
+    Object.keys(this.token).forEach((prop: string) => this.storage.remove(`${LoopBackConfig.getStorageKeyPrefix()}${prop}`));
     this.token = new SDKToken();
   }
   /**
@@ -152,7 +151,7 @@ export class LoopBackAuth {
   protected persist(prop: string, value: any, expires?: Date): void {
     try {
       this.storage.set(
-        `${this.prefix}${prop}`,
+        `${LoopBackConfig.getStorageKeyPrefix()}${prop}`,
         (typeof value === 'object') ? JSON.stringify(value) : value,
         this.token.rememberMe?expires:null
       );
