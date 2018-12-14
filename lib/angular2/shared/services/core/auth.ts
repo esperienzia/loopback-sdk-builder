@@ -153,7 +153,7 @@ export class LoopBackAuth {
    **/
   protected persist(prop: string, value: any): void {
     try {
-      if (prop === 'user') {
+      if (prop === 'user' && value.csvDelimiter) {
           value.csvDelimiter = escape(value.csvDelimiter);
       }
       this.storage.set(
