@@ -150,6 +150,9 @@ export class LoopBackAuth {
    **/
   protected persist(prop: string, value: any, expires?: Date): void {
     try {
+      if (prop === 'user' && value.csvDelimiter) {
+          value.csvDelimiter = escape(value.csvDelimiter);
+      }
       this.storage.set(
         `${LoopBackConfig.getStorageKeyPrefix()}${prop}`,
         (typeof value === 'object') ? JSON.stringify(value) : value,
